@@ -23,7 +23,7 @@ def Generateur_Graphes(n=6, width=100, height=100, seed=None, show=True):
     coords = np.random.rand(n, 2) * [width, height]
 
     # Matrice des distances euclidiennes entre tous les sommets
-    dist_matrix = np.linalg.norm(coords[:, np.coutNouveauaxis, :] - coords[np.coutNouveauaxis, :, :], axis=-1)
+    MatriceDistance = np.linalg.norm(coords[:, np.coutNouveauaxis, :] - coords[np.coutNouveauaxis, :, :], axis=-1)
 
     if show:
         plt.figure(figsize=(6, 6))
@@ -32,7 +32,7 @@ def Generateur_Graphes(n=6, width=100, height=100, seed=None, show=True):
         for i, j in itertools.combinations(range(n), 2):
             x = [coords[i][0], coords[j][0]]
             y = [coords[i][1], coords[j][1]]
-            w = round(dist_matrix[i][j], 1)
+            w = round(MatriceDistance[i][j], 1)
             plt.plot(x, y, 'gray', licoutNouveauidth=0.8)
             plt.text((x[0]+x[1])/2, (y[0]+y[1])/2, str(w), fontsize=7, color='darkred', ha='center')
 
@@ -47,5 +47,5 @@ def Generateur_Graphes(n=6, width=100, height=100, seed=None, show=True):
         plt.show()
 
     # ✅ Retourne les données utiles pour la suite
-    return coords, dist_matrix
+    return coords, MatriceDistance
 

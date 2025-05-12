@@ -1,51 +1,56 @@
 import numpy as np
 from itertools import combinations
 
-### ALGOTHIME DE HELD-KARP
-
 def HeldKarp(MatriceDistance):
     n = len(MatriceDistance)
     
-    # Dictionnaire pour stocker les coûts : clé = (ensemble de sommets, dernier sommet)
+    # Dictionnaires pour stocker les coûts et les chemins
     cout = {}
+    chemin = {}
     
-    # Initialisation : coût pour aller du départ (0) à chaque autre sommet
+    # Initialisation
     for k in range(1, n):
         cout[(frozenset([k]), k)] = MatriceDistance[0][k]
+        chemin[(frozenset([k]), k)] = [0, k]
     
-    # Itérations pour des ensembles de taille croissante
+    # Programmation dynamique
     for tailleEnsemble in range(2, n):
         for ensemble in combinations(range(1, n), tailleEnsemble):
             ensemble = frozenset(ensemble)
             for k in ensemble:
-                # Minimum sur tous les m dans ensemble\{k}
                 minCout = float('inf')
+                meilleurSommet = -1
                 for m in ensemble:
                     if m == k:
                         continue
-                    cout = cout[(ensemble - {k}, m)] + MatriceDistance[m][k]
-                    if cout < minCout:
-                        minCout = cout
+                    coutCourant = cout[(ensemble - {k}, m)] + MatriceDistance[m][k]
+                    if coutCourant < minCout:
+                        minCout = coutCourant
+                        meilleurSommet = m
                 cout[(ensemble, k)] = minCout
+                chemin[(ensemble, k)] = chemin[(ensemble - {k}, meilleurSommet)] + [k]
     
-    # Calcul du tour complet
+    # Recherche de la solution optimale
     full_set = frozenset(range(1, n))
-    minCoutTour = float('inf')
-    for k in range(1, n):
-        cout = cout[(full_set, k)] + MatriceDistance[k][0]
-        if cout < minCoutTour:
-            minCoutTour = cout
+    minCout = float('inf')
+    meilleurChemin = []
     
-    return minCoutTour
+    for k in range(1, n):
+        coutTotal = cout[(full_set, k)] + MatriceDistance[k][0]
+        if coutTotal < minCout:
+            minCout = coutTotal
+            meilleurChemin = chemin[(full_set, k)] + [0]
+    
+    return minCout, meilleurChemin
 
-### EXEMPLE D'UTILISATION
-
-# Matrice de distance pour un graphe à 4 sommets
+# Exemple d'utilisation
 MatriceDistance = np.array([
     [0, 2, 9, 10],
     [2, 0, 6, 4],
     [9, 6, 0, 8],
     [10, 4, 8, 0]
 ])
-    
-print("Borne inférieure Held-Karp:", HeldKarp(MatriceDistance))
+
+coutOptimal, cheminOptimal = HeldKarp(MatriceDistance)
+print(f"Coût optimal: {coutOptimal}")
+print(f"Chemin optimal: {' → '.join(map(str, cheminOptimal))}")
