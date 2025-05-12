@@ -39,10 +39,10 @@ def visualiserTour(tour, MatriceDistance):
     total = 0
     for i in range(len(tour)):
         sommetCourant = tour[i]
-        next_city = tour[(i+1)%len(tour)]
-        cost = MatriceDistance[sommetCourant][next_city]
+        sommetSuivant = tour[(i+1)%len(tour)]
+        cost = MatriceDistance[sommetCourant][sommetSuivant]
         total += cost
-        print(f"{sommetCourant} → {next_city} (coût: {cost})")
+        print(f"{sommetCourant} → {sommetSuivant} (coût: {cost})")
     print(f"Coût total: {total}\n")
 
 def twoOptPVC(MatriceDistance, tourInitial=None, verbose=False):
