@@ -25,5 +25,5 @@ def two_opt_tsp(dist_matrix, initial_tour=None):
     
     tour = two_opt_tour(tour, dist_matrix)
     # Calcul du coût total
-    cost = sum(dist_matrix[tour[i]][tour[(i+1)%n]] for i in range(n))
-    return tour, cost
+    cout = sum(dist_matrix[tour[i]][tour[(i+1)%n]] for i in range(n))
+    return tour, cout
