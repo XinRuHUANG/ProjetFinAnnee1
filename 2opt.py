@@ -70,8 +70,6 @@ MatriceDistance = np.array([
 
 # Exécution avec affichage détaillé
 tourFinal, coutFinal = twoOptPVC(MatriceDistance, verbose=True)
-tourFinal = tourFinal + [tourFinal[0]]
-
-print("\nRésultat final :")
-print(f"Tour optimisé (liste simple)      : {tourFinal}")
-print(f"Coût total du tour optimisé      : {coutFinal}")
+print("\nRésultat final:")
+print(f"Tour optimal: {tourFinal}")
+print(f"Coût total: {coutFinal}")
