@@ -7,10 +7,11 @@ def twoOptEchange(tour, i, j):
     return nouveauTour
 
 def twoOpt(tour, MatriceDistance, verbose=False):
+    """Algorithme 2-opt corrigé"""
     n = len(tour)
     improvement = True
     iteration = 0
-    
+
     while improvement:
         improvement = False
         for i in range(n-1):
@@ -18,7 +19,7 @@ def twoOpt(tour, MatriceDistance, verbose=False):
                 # Calcul des coûts
                 old = MatriceDistance[tour[i]][tour[i+1]] + MatriceDistance[tour[j]][tour[(j+1)%n]]
                 new = MatriceDistance[tour[i]][tour[j]] + MatriceDistance[tour[i+1]][tour[(j+1)%n]]
-                
+
                 if new < old:
                     tour[i+1:j+1] = tour[j:i:-1]  # Inversion plus efficace
                     improvement = True
@@ -48,14 +49,14 @@ def twoOptPVC(MatriceDistance, tourInitial=None, verbose=False):
     """Interface principale pour l'algorithme 2-opt"""
     n = len(MatriceDistance)
     tour = tourInitial if tourInitial is not None else list(range(n))
-    
+
     if verbose:
         print("Tour initial:", tour)
         visualiserTour(tour, MatriceDistance)
-    
+
     tourOptimise = twoOpt(tour, MatriceDistance, verbose)
     coutTotal = calculCoutTotal(tourOptimise, MatriceDistance)
-    
+
     return tourOptimise, coutTotal
 
 # Exemple d'utilisation
@@ -66,10 +67,11 @@ MatriceDistance = np.array([
     [9, 6, 0, 8],
     [10, 4, 8, 0]
 ])
-    
+
 # Exécution avec affichage détaillé
 tourFinal, coutFinal = twoOptPVC(MatriceDistance, verbose=True)
-    
-print("\nRésultat final:")
-print(f"Tour optimal: {tourFinal}")
-print(f"Coût total: {coutFinal}")
+tourFinal = tourFinal + [tourFinal[0]]
+
+print("\nRésultat final :")
+print(f"Tour optimisé (liste simple)      : {tourFinal}")
+print(f"Coût total du tour optimisé      : {coutFinal}")
