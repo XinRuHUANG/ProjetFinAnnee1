@@ -7,7 +7,6 @@ def twoOptEchange(tour, i, j):
     return nouveauTour
 
 def twoOpt(tour, MatriceDistance, verbose=False):
-    """Algorithme 2-opt corrigé"""
     n = len(tour)
     improvement = True
     iteration = 0
