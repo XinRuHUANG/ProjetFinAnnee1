@@ -1,75 +1,86 @@
 import numpy as np
 
-def twoOptEchange(tour, i, j):
+def echange2Opt(tour, i, j):
     """Effectue l'échange 2-opt entre les positions i et j"""
     nouveauTour = tour.copy()
     nouveauTour[i:j+1] = tour[i:j+1][::-1]  # Inverse la section du tour
     return nouveauTour
 
-def twoOpt(tour, MatriceDistance, verbose=False):
+def algorithme2Opt(tour, matriceDistance, verbose=False):
     """Algorithme 2-opt corrigé"""
-    n = len(tour)
-    improvement = True
+    nombreVilles = len(tour)
+    amelioration = True
     iteration = 0
 
-    while improvement:
-        improvement = False
-        for i in range(n-1):
-            for j in range(i+2, n):  # i+2 pour éviter les arêtes adjacentes
+    while amelioration:
+        amelioration = False
+        for i in range(nombreVilles-1):
+            for j in range(i+2, nombreVilles):  # i+2 pour éviter les arêtes adjacentes
                 # Calcul des coûts
-                old = MatriceDistance[tour[i]][tour[i+1]] + MatriceDistance[tour[j]][tour[(j+1)%n]]
-                new = MatriceDistance[tour[i]][tour[j]] + MatriceDistance[tour[i+1]][tour[(j+1)%n]]
+                ancienCout = matriceDistance[tour[i]][tour[i+1]] + matriceDistance[tour[j]][tour[(j+1)%nombreVilles]]
+                nouveauCout = matriceDistance[tour[i]][tour[j]] + matriceDistance[tour[i+1]][tour[(j+1)%nombreVilles]]
 
-                if new < old:
+                if nouveauCout < ancienCout:
                     tour[i+1:j+1] = tour[j:i:-1]  # Inversion plus efficace
-                    improvement = True
+                    amelioration = True
                     if verbose:
-                        print(f"Itération {iteration}: Gain = {old-new}")
-                        print(f"Nouveau tour: {tour} (Coût: {calculCoutTotal(tour, MatriceDistance)})")
+                        print(f"Itération {iteration}: Gain = {ancienCout-nouveauCout}")
+                        print(f"Nouveau tour: {tour} (Coût: {calculerCoutTotal(tour, matriceDistance)})")
                     iteration += 1
     return tour
 
-def calculCoutTotal(tour, MatriceDistance):
+def calculerCoutTotal(tour, matriceDistance):
     """Calcule le coût total d'un tour"""
-    return sum(MatriceDistance[tour[i]][tour[(i+1)%len(tour)]] for i in range(len(tour)))
+    return sum(matriceDistance[tour[i]][tour[(i+1)%len(tour)]] for i in range(len(tour)))
 
-def visualiserTour(tour, MatriceDistance):
+def visualiserTour(tour, matriceDistance):
     """Visualisation simple du tour"""
-    print("\nVisualisation du tour:")
-    total = 0
-    for i in range(len(tour)):
-        sommetCourant = tour[i]
-        sommetSuivant = tour[(i+1)%len(tour)]
-        cost = MatriceDistance[sommetCourant][sommetSuivant]
-        total += cost
-        print(f"{sommetCourant} → {sommetSuivant} (coût: {cost})")
-    print(f"Coût total: {total}\n")
+    # Ajout du sommet initial pour former un cycle complet
+    tourComplet = tour + [tour[0]]
+    
+    print("\nVisualisation du tour complet:")
+    coutTotal = 0
+    for i in range(len(tourComplet)-1):
+        villeCourante = tourComplet[i]
+        villeSuivante = tourComplet[i+1]
+        cout = matriceDistance[villeCourante][villeSuivante]
+        coutTotal += cout
+        print(f"{villeCourante} → {villeSuivante} (coût: {cout})")
+    print(f"Coût total du cycle: {coutTotal}\n")
 
-def twoOptPVC(MatriceDistance, tourInitial=None, verbose=False):
+def resoudrePVC2Opt(matriceDistance, tourInitial=None, verbose=False):
     """Interface principale pour l'algorithme 2-opt"""
-    n = len(MatriceDistance)
-    tour = tourInitial if tourInitial is not None else list(range(n))
+    nombreVilles = len(matriceDistance)
+    tour = tourInitial if tourInitial is not None else list(range(nombreVilles))
 
     if verbose:
         print("Tour initial:", tour)
-        visualiserTour(tour, MatriceDistance)
+        visualiserTour(tour, matriceDistance)
 
-    tourOptimise = twoOpt(tour, MatriceDistance, verbose)
-    coutTotal = calculCoutTotal(tourOptimise, MatriceDistance)
+    tourOptimise = algorithme2Opt(tour, matriceDistance, verbose)
+    coutTotal = calculerCoutTotal(tourOptimise, matriceDistance)
 
+    # Retourne le tour optimisé et son coût
     return tourOptimise, coutTotal
 
 # Exemple d'utilisation
 # Matrice de distance pour un graphe à 4 sommets
-MatriceDistance = np.array([
-    [0, 2, 9, 10],
-    [2, 0, 6, 4],
-    [9, 6, 0, 8],
-    [10, 4, 8, 0]
+matriceDistance = np.array([
+    [0, 2, 9, 10],  # Ville 0
+    [2, 0, 6, 4],   # Ville 1
+    [9, 6, 0, 8],   # Ville 2
+    [10, 4, 8, 0]   # Ville 3
 ])
 
 # Exécution avec affichage détaillé
-tourFinal, coutFinal = twoOptPVC(MatriceDistance, verbose=True)
+tourFinal, coutFinal = resoudrePVC2Opt(matriceDistance, verbose=True)
+
+# Ajout du sommet initial pour affichage final
+tourFinalComplet = tourFinal + [tourFinal[0]]
+
 print("\nRésultat final:")
-print(f"Tour optimal: {tourFinal}")
+print(f"Tour optimal: {tourFinalComplet}")
 print(f"Coût total: {coutFinal}")
+
+# Affichage détaillé du tour final
+visualiserTour(tourFinal, matriceDistance)
