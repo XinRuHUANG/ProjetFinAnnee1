@@ -10,7 +10,7 @@ Created on Thu May 15 09:53:28 2025
 import numpy as np
 import itertools
 
-def generate_distance_matrix(n=3, seed=0):
+def generate_MatriceDistance(n=3, seed=0):
     """
     Génère une matrice de distances symétrique avec zéros sur la diagonale.
     """
@@ -77,7 +77,7 @@ def subgradient_method_verbose(D, max_iter=10, alpha_0=1.0):
     return lambd, dual_values, best_cycles
 
 # Exemple d'utilisation
-D = generate_distance_matrix(n=3, seed=147)
+D = generate_MatriceDistance(n=3, seed=147)
 lambd_final, dual_values, best_cycles = subgradient_method_verbose(D)
 
 D, lambd_final, dual_values, best_cycles[-1]

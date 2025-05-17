@@ -2,18 +2,18 @@ import numpy as np
 from itertools import combinations
 from scipy.optimize import linprog
 
-class TSP_TwoPhaseSolver:
-    def __init__(self, distance_matrix):
-        self.dist = distance_matrix
-        self.n = len(distance_matrix)
-        self.subtour_constraints = []
+class twoPhases:
+    def __init__(self, MatriceDistance):
+        self.dist = MatriceDistance
+        self.n = len(MatriceDistance)
+        self.subtourContraints = []
         
     def phase1_artificial_problem(self):
         # Nombre de variables (n*(n-1) variables de décision + 2n variables artificielles)
-        num_vars = self.n * (self.n - 1)
+        nbVar = self.n * (self.n - 1)
         
         # Construction de la matrice de contraintes
-        A_eq = np.zeros((2*self.n, num_vars))
+        A_eq = np.zeros((2*self.n, nbVar))
         for i in range(self.n):
             for j in range(self.n):
                 if i != j:
@@ -24,8 +24,8 @@ class TSP_TwoPhaseSolver:
         # Ajout des variables artificielles
         A_art = np.hstack([A_eq, np.eye(2*self.n)])
         b_eq = np.ones(2*self.n)
-        c_art = np.zeros(num_vars + 2*self.n)
-        c_art[num_vars:] = 1  # On minimise la somme des variables artificielles
+        c_art = np.zeros(nbVar + 2*self.n)
+        c_art[nbVar:] = 1  # On minimise la somme des variables artificielles
         
         # Résolution avec linprog
         res = linprog(c=c_art, A_eq=A_art, b_eq=b_eq, bounds=(0, 1))
@@ -33,37 +33,37 @@ class TSP_TwoPhaseSolver:
         if not res.success:
             raise ValueError("Phase 1 failed to find feasible solution")
             
-        return res.x[:num_vars]
+        return res.x[:nbVar]
     
     def phase2_original_problem(self, initial_sol):
-        current_sol = initial_sol.copy()
+        solCourant = initial_sol.copy()
         iteration = 0
-        max_iterations = 100
+        iterMax = 100
         
-        while iteration < max_iterations:
+        while iteration < iterMax:
             # Convertir en solution binaire (arrondir les valeurs)
-            binary_sol = np.round(current_sol)
+            solBinaire = np.round(solCourant)
             
             # Détecter les sous-tours
-            subtours = self.detect_subtours(binary_sol)
+            subtours = self.detect_subtours(solBinaire)
             if not subtours:
-                return binary_sol
+                return solBinaire
                 
             # Ajouter des contraintes pour chaque sous-tour
             for subtour in subtours:
                 self.add_subtour_constraint(subtour)
             
             # Réoptimiser avec les nouvelles contraintes
-            current_sol = self.solve_with_constraints()
+            solCourant = self.solve_with_constraints()
             iteration += 1
         
         raise ValueError("Maximum iterations reached without finding valid tour")
     
     def solve_with_constraints(self):
-        num_vars = self.n * (self.n - 1)
+        nbVar = self.n * (self.n - 1)
         
         # Fonction objectif (minimiser la distance totale)
-        c = np.zeros(num_vars)
+        c = np.zeros(nbVar)
         for i in range(self.n):
             for j in range(self.n):
                 if i != j:
@@ -71,7 +71,7 @@ class TSP_TwoPhaseSolver:
                     c[idx] = self.dist[i,j]
         
         # Contraintes de degré
-        A_eq = np.zeros((2*self.n, num_vars))
+        A_eq = np.zeros((2*self.n, nbVar))
         for i in range(self.n):
             for j in range(self.n):
                 if i != j:
@@ -81,11 +81,11 @@ class TSP_TwoPhaseSolver:
         b_eq = np.ones(2*self.n)
         
         # Contraintes de sous-tours
-        num_subtour_constraints = len(self.subtour_constraints)
-        A_ub = np.zeros((num_subtour_constraints, num_vars))
-        b_ub = np.zeros(num_subtour_constraints)
+        numSubtourContraints = len(self.subtourContraints)
+        A_ub = np.zeros((numSubtourContraints, nbVar))
+        b_ub = np.zeros(numSubtourContraints)
         
-        for k, subtour in enumerate(self.subtour_constraints):
+        for k, subtour in enumerate(self.subtourContraints):
             for i in subtour:
                 for j in subtour:
                     if i != j:
@@ -134,7 +134,7 @@ class TSP_TwoPhaseSolver:
     def add_subtour_constraint(self, subtour):
         # Ajouter une contrainte pour éliminer ce sous-tour
         # ∑_{i,j ∈ subtour} x_ij ≤ |subtour| - 1
-        self.subtour_constraints.append(subtour)
+        self.subtourContraints.append(subtour)
     
     def solution_to_tour(self, solution):
         # Reconstruire le tour à partir de la solution binaire
@@ -174,7 +174,7 @@ class TSP_TwoPhaseSolver:
         return solution
 
 # Matrice de distance
-dist_matrix = np.array([
+MatriceDistance = np.array([
     [0, 2, 9, 10],
     [2, 0, 6, 4],
     [9, 6, 0, 8],
@@ -183,7 +183,7 @@ dist_matrix = np.array([
 
 # Création et résolution du solveur
 print("Initializing solver...")
-solver = TSP_TwoPhaseSolver(dist_matrix)
+solver = twoPhases(MatriceDistance)
 print("Solving TSP...")
 solution = solver.solve()
 
@@ -192,12 +192,12 @@ print("\nSolution finale:")
 for i in range(solver.n):
     for j in range(solver.n):
         if i != j and solution[i*(solver.n-1) + (j if j < i else j-1)] > 0.5:
-            print(f"Ville {i} → Ville {j} (distance: {dist_matrix[i,j]})")
+            print(f"Ville {i} → Ville {j} (distance: {MatriceDistance[i,j]})")
 
 # Conversion en tour
 tour = solver.solution_to_tour(solution)
-total_distance = sum(dist_matrix[tour[i]][tour[i+1]] for i in range(len(tour)-1))
-total_distance += dist_matrix[tour[-1]][tour[0]]  # Retour au point de départ
+distanceTotal = sum(MatriceDistance[tour[i]][tour[i+1]] for i in range(len(tour)-1))
+distanceTotal += MatriceDistance[tour[-1]][tour[0]]  # Retour au point de départ
 
 print("\nTour optimal:", tour + [tour[0]])
-print(f"Distance totale: {total_distance}")
+print(f"Distance totale: {distanceTotal}")
