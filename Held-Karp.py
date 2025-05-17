@@ -45,7 +45,7 @@ def held_karp(D: np.ndarray) -> Tuple[float, List[int]]:
         i = p[(S, j)]
         chemin.append(i)
         S, j = S - {j}, i
-    chemin.reverse()  # 0 → … → 0
+    chemin.reverse()  # 0 ↔ … ↔ 0
 
     return optimum, chemin
 
@@ -59,4 +59,4 @@ MatriceDistance = np.array([
 
 coutOptimal, cheminOptimal = held_karp(MatriceDistance)
 print(f"Coût optimal: {coutOptimal}")
-print(f"Chemin optimal: {' → '.join(map(str, cheminOptimal))}")
+print(f"Chemin optimal: {' ↔ '.join(map(str, cheminOptimal))}")
